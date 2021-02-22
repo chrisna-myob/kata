@@ -1,1 +1,1 @@
-# kata!
+# kata
