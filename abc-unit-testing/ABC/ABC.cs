@@ -1,27 +1,16 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace ABC
 {
-    class Program
+    public class ABCClass
     {
-
-        static void Main(string[] args)
-        {         
-            string[] words = { "a" };
-
-            foreach(string word in words) {
-                Console.WriteLine(can_make_word(word));
-            }
-        }
-
-        public static string can_make_word(string word) 
+        public bool can_make_word(string word)
         {
-            if (String.IsNullOrEmpty(word)) {
-                return "False";
-            }
+            if (String.IsNullOrWhiteSpace(word)) return false;
 
+            word = word.ToUpper();
+            
             List<string> blocks = new List<string> {
                 "BO", "XK", "DQ", "CP", "NA", "GT", "RE", "TG", "QD", "FS", "JW", "HU", "VI", "AN", "OB", "ER", "FS", "LY", "PC", "ZM"
             };
@@ -37,12 +26,10 @@ namespace ABC
                 }
             }
 
-            if (removedBlocks == word.Length) {
-                return "True";
-            } else {
-                return "False";
-            }
-            
+            if (removedBlocks == word.Length) return true;
+            else return false;
+
         }
+
     }
 }
