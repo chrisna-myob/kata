@@ -6,56 +6,47 @@ namespace ABC.Tests
 {
     public class BlockTests
     {
+        private readonly Block _block;
+
+        public BlockTests()
+        {
+            _block = new Block('A', 'B');
+        }
+
         [Fact]
         public void BlockObject_InputIsAAndB_ReturnFirstLetterA()
         {
-            var block = new Block('A', 'B');
-
-            Assert.Equal('A', block.FirstLetter);
+            Assert.Equal('A', _block.FirstLetter);
         }
 
         [Fact]
-        public void BlockObject_InputIsAAndB_ReturnSecondLetterB()
+        public void Block_InputIsAAndB_ReturnSecondLetterB()
         {
-            var block = new Block('A', 'B');
-
-            Assert.Equal('B', block.SecondLetter);
+            Assert.Equal('B', _block.SecondLetter);
         }
 
         [Fact]
-        public void BlockObject_InputIsaAndb_ReturnUppercaseFirstLetterA()
+        public void Block_InputIsaAndb_ReturnUppercaseFirstLetterA()
         {
-            var block = new Block('A', 'B');
-
-            Assert.Equal('A', block.FirstLetter);
+            Assert.Equal('A', _block.FirstLetter);
         }
 
         [Fact]
-        public void BlockObject_InputIsaAndb_ReturnUppercaseSecondLetterB()
+        public void Block_InputIsaAndb_ReturnUppercaseSecondLetterB()
         {
-            var block = new Block('a', 'b');
-
-            Assert.Equal('B', block.SecondLetter);
+            Assert.Equal('B', _block.SecondLetter);
         }
 
         [Fact]
         public void ContainsLetter_InputIsA_ReturnTrue()
         {
-            var block = new Block('A', 'B');
-
-            var actual = block.ContainsLetter('A');
-
-            Assert.True(actual);
+            Assert.True(_block.ContainsLetter('A'));
         }
 
         [Fact]
         public void ContainsLetter_InputIsX_ReturnFalse()
         {
-            var block = new Block('A', 'B');
-
-            var actual = block.ContainsLetter('X');
-
-            Assert.False(actual);
+            Assert.False(_block.ContainsLetter('X'));
         }
 
         [Theory]
@@ -63,11 +54,7 @@ namespace ABC.Tests
         [InlineData('@')]
         public void ContainsLetter_InputInvalidCharacter_ReturnFalse(char input)
         {
-            var block = new Block('A', 'B');
-
-            var actual = block.ContainsLetter(input);
-
-            Assert.False(actual);
+            Assert.False(_block.ContainsLetter(input));
         }
     }
 
@@ -119,18 +106,14 @@ namespace ABC.Tests
         [InlineData("SQUAD")]
         [InlineData("CONFUSE")]
         public void CanMakeWord_InputWord_ReturnTrue(string input) {
-
             Assert.True(_blocks.CanMakeWord(input));
-
         }
 
         [Theory]
         [InlineData("BOOK")]
         [InlineData("COMMON")]
         public void CanMakeWord_InputWord_ReturnFalse(string input) {
-
             Assert.False(_blocks.CanMakeWord(input));
-
         }
 
     }
