@@ -1,20 +1,21 @@
 using System;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 
 
 namespace ABC
 {
-    public class Blocks {
+    public class BlockService {
 
         private List<Block> _blocks = new List<Block>();	
 
+        private BlockBuilder blockBuilder = new BlockBuilder();
+
         public void MakeBlocks(string[] stringBlocks) {
+            
             foreach(string b in stringBlocks) {
-                var stringLetters = Regex.Match(b, @"(?<=\().*?(?=\))").Value;
-                var letters = stringLetters.Split(' '); 
-                this._blocks.Add(new Block(Char.Parse(letters[0]), Char.Parse(letters[1])));
+                _blocks.Add(blockBuilder.Build(b));
             }    
+
         }
 
         private void InvalidInputCheck(string input) {
@@ -30,7 +31,7 @@ namespace ABC
             var formattedWord = word.ToUpper();
 
             var removedBlocks = 0;
-            foreach(var character in word) {
+            foreach(var character in formattedWord) {
                 foreach(var block in _blocks) {
                     if (block.ContainsLetter(character)) {
                         _blocks.Remove(block);
@@ -40,7 +41,7 @@ namespace ABC
                 }
             }
 
-            if (removedBlocks == word.Length) return true;
+            if (removedBlocks == formattedWord.Length) return true;
             return false;
 
         }
