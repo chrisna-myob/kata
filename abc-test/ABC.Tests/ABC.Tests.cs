@@ -1,3 +1,4 @@
+using System.Reflection;
 using Xunit;
 using ABC;
 using System;
@@ -58,9 +59,58 @@ namespace ABC.Tests
         }
     }
 
+    public class BlockBuilderTest
+    {
+        private readonly BlockBuilder _blockBuilder;
+
+        private readonly Block _expectedBlock;
+
+        public BlockBuilderTest()
+        {
+            _blockBuilder = new BlockBuilder();
+
+            _expectedBlock = new Block('B', 'O');
+
+        }
+
+        [Fact]
+        public void Build_InputStringOfTwoLetters_ReturnBlockFirstLetterB()
+        {
+            var _block = _blockBuilder.Build("(B O)");
+
+            Assert.Equal(_expectedBlock.FirstLetter, _block.FirstLetter);
+        }
+
+        [Fact]
+        public void Build_InputStringOfTwoLetters_ReturnBlockSecondLetterO() 
+        {
+            var _block = _blockBuilder.Build("(B O)");
+
+            Assert.Equal(_expectedBlock.SecondLetter, _block.SecondLetter);
+
+        }
+
+        [Fact]
+        public void Build_InputEmptyString_ThrowsArgumentException()
+        {
+            Assert.Throws<ArgumentException>(() => _blockBuilder.Build(""));
+        }
+
+        [Theory]
+        [InlineData("(1 2)")]
+        [InlineData("(@ e)")]
+        [InlineData("(a B c)")]
+        [InlineData("(A B C D)")]
+        [InlineData("(AB CD)")]
+        public void Build_InputInvalidLetters_ThrowsArgumentException(string input)
+        {
+            Assert.Throws<ArgumentException>(() => _blockBuilder.Build(input));
+        }
+    }
+
     public class BlocksTest 
     {
-        private readonly Blocks _blocks;
+        private readonly BlockService _blocks;
 
         public BlocksTest()
         {
@@ -87,7 +137,7 @@ namespace ABC.Tests
                                 "(Z M)"
                             };
 
-            _blocks = new Blocks();
+            _blocks = new BlockService();
 
             _blocks.MakeBlocks(stringBlocks); 
         }
@@ -114,6 +164,16 @@ namespace ABC.Tests
         [InlineData("COMMON")]
         public void CanMakeWord_InputWord_ReturnFalse(string input) {
             Assert.False(_blocks.CanMakeWord(input));
+        }
+
+        [Fact]
+        public void CanMakeWord_InputLowercaseWord_ReturnTrue() {
+            Assert.True(_blocks.CanMakeWord("confuse"));
+        }
+
+        [Fact]
+        public void CanMakeWord_InputLowercaseWord_ReturnFalse() {
+            Assert.False(_blocks.CanMakeWord("common"));
         }
 
     }
