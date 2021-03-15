@@ -15,14 +15,14 @@ namespace ABC
 
         public Block Build(string blockLetters) 
         {
-            var stringLetters = Regex.Match(input, LETTERS_WITHIN_BRACKET).Value;
+            var stringLetters = Regex.Match(blockLetters, LETTERS_WITHIN_BRACKET).Value;
 
             InvalidInputCheck(stringLetters);
 
             var letters = stringLetters.Split(" ");
 
-            firstLetter = Char.Parse(letters[0]);
-            secondLetter = Char.Parse(letters[1]);
+            var firstLetter = Char.Parse(letters[0]);
+            var secondLetter = Char.Parse(letters[1]);
 
             return new Block(firstLetter, secondLetter);
         }
