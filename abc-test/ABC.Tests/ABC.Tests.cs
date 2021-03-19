@@ -134,7 +134,8 @@ namespace ABC.Tests
                                 "(F S)",
                                 "(L Y)",
                                 "(P C)",
-                                "(Z M)"
+                                "(Z M)",
+                                "(X W)"
                             };
 
             _blocks = new BlockService();
@@ -155,6 +156,7 @@ namespace ABC.Tests
         [InlineData("TREAT")]
         [InlineData("SQUAD")]
         [InlineData("CONFUSE")]
+        [InlineData("EXK")]
         public void CanMakeWord_InputWord_ReturnTrue(string input) {
             Assert.True(_blocks.CanMakeWord(input));
         }
