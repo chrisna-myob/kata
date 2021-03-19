@@ -1,47 +1,59 @@
 using System;
 using System.Collections.Generic;
-
+using System.Linq;
 
 namespace ABC
 {
     public class BlockService {
 
-        private List<Block> _blocks = new List<Block>();	
+        private List<Block> _sortedBlocks = new List<Block>();
+
+        private List<Block> _usedBlocks = new List<Block>();
 
         private BlockBuilder blockBuilder = new BlockBuilder();
 
         public void MakeBlocks(string[] stringBlocks) {
+            var makeBlocks = new List<Block>();
             
             foreach(string b in stringBlocks) {
-                _blocks.Add(blockBuilder.Build(b));
+                makeBlocks.Add(blockBuilder.Build(b));
             }    
+
+            _sortedBlocks = makeBlocks.OrderBy(b => b.FirstLetter).ToList();
 
         }
 
-        private void InvalidInputCheck(string input) {
+        public List<Block> GetBlock()
+        {
+            return _sortedBlocks;
+        }
+
+        private string MakeWord(string input) {
             if (String.IsNullOrWhiteSpace(input)) {
                 throw new ArgumentException("Invalid Word");
             }
+
+            var word = String.Concat(input.OrderBy(character => character));
+
+            return word.ToUpper();
+
         }
 
         public bool CanMakeWord(string word)
         {
-            InvalidInputCheck(word);
+            var sortedWord = MakeWord(word);
 
-            var formattedWord = word.ToUpper();
-
-            var removedBlocks = 0;
-            foreach(var character in formattedWord) {
-                foreach(var block in _blocks) {
+            foreach(var character in sortedWord) {
+                foreach(var block in _sortedBlocks) {
                     if (block.ContainsLetter(character)) {
-                        _blocks.Remove(block);
-                        removedBlocks++;
+                        _usedBlocks.Add(block);
+                        _sortedBlocks.Remove(block);
                         break;
                     }
                 }
             }
 
-            if (removedBlocks == formattedWord.Length) return true;
+            if (_usedBlocks.Count == sortedWord.Length) return true;
             return false;
 
         }
