@@ -7,18 +7,11 @@ namespace TicTacToe.Tests
     public class PlayerTests
     {
         [Fact]
-        public void Player_InputCharXAndInteger1_ReturnCharacterX()
+        public void Player_InputCharacterXAndInteger1_ReturnCharacterXAndNumber1()
         {
             var person = new Player('X', 1);
 
             Assert.Equal('X', person.Character);
-        }
-
-        [Fact]
-        public void Player_InputCharXAndInteger1_ReturnNumber1()
-        {
-            var person = new Player('X', 1);
-
             Assert.Equal(1, person.Number);
         }
     }

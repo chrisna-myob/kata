@@ -1,90 +1,132 @@
+using System.Reflection.Metadata;
 using System;
 
 namespace TicTacToe
 {
     public class Game
     {
+        private const char NO_WINNER = Char.MinValue;
+        private const string QUIT_GAME = "q";
+        
+
         private Board _board;
         private Player _player1;
         private Player _player2;
 
         private Player _currentPlayer;
 
-        private int _playerTurn = 1;
+        public Game()
+        {
+            _player1 = new Player('X', 1, true);
+            _player2 = new Player('O', 2, false);
+            _board = new Board();
+        }
+
         public void Play()
         {
             Console.WriteLine("Welcome to Tic Tac Toe!");
             Console.WriteLine();
             _board.PrintBoard();
 
-            while (_playerTurn < 9) 
+            var end_game = false;
+            while (!end_game) 
             {
-                _currentPlayer = GetPlayer();
+                _currentPlayer = FindActivePlayer();
 
-                GetPlayersMove(_currentPlayer);
-                if (_board.HasWon())
-                {
-                    break;
-                } else 
-                {
-                    Console.WriteLine("Move accepted, here's the current board:");
+                var coordinates = GetPlayerMoveCoordinates();
+
+                if (_board.HasAcceptableMove(coordinates)) {
+                    _board.MarkPlayersMove(_currentPlayer.Character, coordinates);
+                } else {
+                    Console.WriteLine("Oh no, a piece is already at this place! Try again...");
+                    continue;
                 }
-                _board.PrintBoard();
 
-                _playerTurn++;
+                if (IsGameEnd()) 
+                {
+                    end_game = true;
+                }
+                else {
+                    Console.WriteLine("Move accepted, here's the current board:");
+                    _board.PrintBoard();
+                }
+                SwitchUser();
             }
         }
 
-        private Player GetPlayer()
+        private void SwitchUser()
         {
-            return (_playerTurn%2 == 0) ? _player2 : _player1;
+            this._player1.ToggleActive();
+            this._player2.ToggleActive();
         }
 
-        public void SetUp()
+        private Player FindActivePlayer()
         {
-            _player1 = new Player('X', 1);
-            _player2 = new Player('O', 2);
-            _board = new Board();
+            return (this._player1.IsActive) ? this._player1 : this._player2;
         }
 
-        private void GetPlayersMove(Player player)
+        public Coordinate GetPlayerMoveCoordinates()
         {
             while (true)
             {
-                Console.Write($"Player {player.Number} enter a coord x,y to place your {player.Character} or enter 'q' to give up: ");
+                Console.Write($"Player {_currentPlayer.Number} enter a coord x,y to place your {_currentPlayer.Character} or enter 'q' to give up: ");
                 var input = Console.ReadLine();
-                if (input == "q")
+                if (input == QUIT_GAME)
                 {
-                    Console.Write("You have given up. :(");
+                    Console.WriteLine("You have given up. :(");
                     System.Environment.Exit(0);
                 }
-                var coordinateArray = input.Split(",");
-                int row, column;
-                var rowResult = Int32.TryParse(coordinateArray[0], out row);
-                var columnResult = Int32.TryParse(coordinateArray[1], out column);
 
-                if (!rowResult || !columnResult || !_board.IsAvailable(row, column))
-                {
-                    Console.WriteLine("Oh no, a piece is already at this place! Try again...");
-                } 
-                else 
-                {
-                    _board.AddCharacterToBoard(player.Character, row, column);
-                    break;
-                }
+                var coordinates = TurnInputIntoCoordinate(input);
+                
+                return coordinates;   
             }
         }
 
-        public void DisplayWinner()
+        private Coordinate TurnInputIntoCoordinate(string input)
         {
-            if (_board.HasWon())
-            {
-                Console.WriteLine("Move accepted, well done you've won the game!");
-            } else {
-                Console.WriteLine("No one has won, there's a tie!");
-            }
+            int x, y;
+            var stringArray = new string[2];
 
+            try
+            {
+                stringArray = input.Split(",");
+
+                if (stringArray.Length == 1) 
+                {
+                    throw new IndexOutOfRangeException();
+                }
+
+            }
+            catch (IndexOutOfRangeException)
+            {
+                return new Coordinate(-1, -1);
+            }
+            
+            var rowResult = Int32.TryParse(stringArray[0], out x);
+            var columnResult = Int32.TryParse(stringArray[1], out y);
+        
+            return new Coordinate(x, y);
+
+        }
+
+        public void DisplayResults()
+        {
+            var winningCharacter = _board.GetWinnerCharacter();
+            if (winningCharacter == NO_WINNER)
+            {
+                Console.WriteLine("No one has won, there's a tie!");
+            } else {
+                Console.WriteLine($"Move accepted, well done Player {winningCharacter} you've won the game!");
+            }
             _board.PrintBoard();
+        }
+
+        private bool IsGameEnd()
+        {
+            if (_board.IsFull()) return true;
+            else if (_board.HasWinner()) return true;
+            return false;
         }
         
     }

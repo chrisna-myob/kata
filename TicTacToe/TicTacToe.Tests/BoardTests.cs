@@ -6,45 +6,95 @@ namespace TicTacToe.Tests
 {
     public class BoardTests
     {
+        public readonly int BOARD_SIZE = 3;
+
+        [Fact]
+        public void MarkPlayersMove_InputString()
+        {
+            var board = new Board();
+            board.MarkPlayersMove('X', new Coordinate(0,0));
+
+            var actual = board.CellIsAvailable(0, 0);
+
+            Assert.False(actual);
+        }
+
         [Theory]
-        [InlineData(new int[] {0,0}, new int[] {0,1}, new int[] {0,2})]
-        [InlineData(new int[] {1,0}, new int[] {1,1}, new int[] {1,2})]
-        [InlineData(new int[] {2,0}, new int[] {2,1}, new int[] {2,2})]
-        [InlineData(new int[] {0,0}, new int[] {1,0}, new int[] {2,0})]
-        [InlineData(new int[] {0,1}, new int[] {1,1}, new int[] {2,1})]
-        [InlineData(new int[] {0,2}, new int[] {1,2}, new int[] {2,2})]
-        [InlineData(new int[] {0,0}, new int[] {1,1}, new int[] {2,2})]
-        [InlineData(new int[] {2,0}, new int[] {1,1}, new int[] {0,2})]
-        public void HasWon_InputAllPossibleWinCoordinates_ReturnTrue(int[] coordinate1, int[] coordinate2, int[] coordinate3)
+        [MemberData(nameof(TestDataGenerator.GetWinningCoordinatesFromDataGenerator), MemberType = typeof(TestDataGenerator))]
+        public void GetWinnerCharacter_InputAllPossibleWinCoordinates_ReturnWinnerCharacter(Coordinate coordinate1, Coordinate coordinate2, Coordinate coordinate3)
         {
             var board = new Board();
 
-            board.AddCharacterToBoard('X', coordinate1[0], coordinate1[1]);
-            board.AddCharacterToBoard('X', coordinate2[0], coordinate2[1]);
-            board.AddCharacterToBoard('X', coordinate3[0], coordinate3[1]);
+            board.MarkPlayersMove('X', coordinate1);
+            board.MarkPlayersMove('X', coordinate2);
+            board.MarkPlayersMove('X', coordinate3);
 
-            var actual = board.HasWon();
+            var actual = board.GetWinnerCharacter();
+
+            Assert.Equal('X', actual);
+        }
+
+        [Fact]
+        public void GetWinnerCharacter_InputNonWinCoordinate_ReturnNoWinner()
+        {
+            var expected = Char.MinValue;
+            var board = new Board();
+
+            board.MarkPlayersMove('X', new Coordinate(0,0));
+            board.MarkPlayersMove('X', new Coordinate(2,0));
+            board.MarkPlayersMove('X', new Coordinate(1,1));
+
+            var actual = board.GetWinnerCharacter();
+
+            Assert.Equal(expected, actual);
+        }
+
+        [Theory]
+        [MemberData(nameof(TestDataGenerator.GetWinningCoordinatesFromDataGenerator), MemberType = typeof(TestDataGenerator))]
+        public void HasWinner_InputAllPossibleWinCoordinates_ReturnTrue(Coordinate coordinate1, Coordinate coordinate2, Coordinate coordinate3)
+        {
+            var board = new Board();
+
+            board.MarkPlayersMove('X', coordinate1);
+            board.MarkPlayersMove('X', coordinate2);
+            board.MarkPlayersMove('X', coordinate3);
+
+            var actual = board.HasWinner();
 
             Assert.True(actual);
         }
 
         [Fact]
-        public void IsAvailable_InputUsedCoordinates_ReturnFalse()
+        public void HasWinner_InputNonWinCoordinates_ReturnFalse()
         {
             var board = new Board();
-            board.AddCharacterToBoard('X', 0, 0);
 
-            var actual = board.IsAvailable(0, 0);
+            board.MarkPlayersMove('X', new Coordinate(0,0));
+            board.MarkPlayersMove('X', new Coordinate(2,0));
+            board.MarkPlayersMove('X', new Coordinate(1,1));
+
+            var actual = board.HasWinner();
 
             Assert.False(actual);
         }
 
         [Fact]
-        public void IsAvailable_InputUnusedCoordinates_ReturnTrue()
+        public void CellIsAvailable_InputUsedCoordinates_ReturnFalse()
+        {
+            var board = new Board();
+            board.MarkPlayersMove('X', new Coordinate(0,0));
+
+            var actual = board.CellIsAvailable(0, 0);
+
+            Assert.False(actual);
+        }
+
+        [Fact]
+        public void CellIsAvailable_InputUnusedCoordinates_ReturnTrue()
         {
             var board = new Board();
 
-            var actual = board.IsAvailable(0, 0);
+            var actual = board.CellIsAvailable(0, 0);
 
             Assert.True(actual);
         }
@@ -52,11 +102,70 @@ namespace TicTacToe.Tests
         [Theory]
         [InlineData(5,4)]
         [InlineData(-1,-6)]
-        public void IsAvailable_InputInvalidCoordinates_ReturnFalse(int x, int y)
+        public void CellIsAvailable_InputInvalidCoordinates_ReturnFalse(int x, int y)
         {
             var board = new Board();
 
-            var actual = board.IsAvailable(x, y);
+            var actual = board.CellIsAvailable(x, y);
+
+            Assert.False(actual);
+        }
+
+        [Fact]
+        public void HasAcceptableMove_InputCoordinate_ReturnTrue()
+        {
+            var board = new Board();
+
+            var actual = board.HasAcceptableMove(new Coordinate(1,1));
+
+            Assert.True(actual);
+        }
+
+        [Fact]
+        public void HasAcceptableMove_InputCoordinate_ReturnFalse()
+        {
+            var board = new Board();
+
+            var actual = board.HasAcceptableMove(new Coordinate(3,4));
+
+            Assert.False(actual);
+        }
+
+        [Fact]
+        public void IsFull_InputFullBoard_ReturnTrue()
+        {
+            var board = new Board();
+            for(int x = 0; x < BOARD_SIZE; x++)
+            {
+                for(int y = 0; y < BOARD_SIZE; y++)
+                {
+                    board.MarkPlayersMove('X', new Coordinate(x,y));
+                }
+            }
+
+            var actual = board.IsFull();
+
+            Assert.True(actual);
+        }
+
+        [Fact]
+        public void IsFull_InputNonFilledBoard_ReturnFalse()
+        {
+            var board = new Board();
+
+            var actual = board.IsFull();
+
+            Assert.False(actual);
+        }
+
+        [Fact]
+        public void IsFull_InputPartiallyFilledBoard_ReturnFalse()
+        {
+            var board = new Board();
+            board.MarkPlayersMove('X', new Coordinate(0,0));
+            board.MarkPlayersMove('0', new Coordinate(1,1));
+            
+            var actual = board.IsFull();
 
             Assert.False(actual);
         }

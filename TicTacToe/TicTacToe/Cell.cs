@@ -22,5 +22,5 @@ namespace TicTacToe
             return _value == '.' ? true : false;
         }
 
-    }
+}
 }

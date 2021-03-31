@@ -14,10 +14,12 @@ namespace TicTacToe.Tests
             Assert.True(cell.IsAvailable());
         }
 
-        [Fact]
-        public void IsAvailable_InputXCharacter_ReturnFalse()
+        [Theory]
+        [InlineData('X')]
+        [InlineData(' ')]
+        public void IsAvailable_InputIsNotDotCharacter_ReturnFalse(char character)
         {
-            var cell = new Cell('X');
+            var cell = new Cell(character);
 
             Assert.False(cell.IsAvailable());
         }
