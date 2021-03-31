@@ -22,6 +22,14 @@ namespace TicTacToe
             _board = new Board();
         }
 
+        // start(){
+        //     // 1 register players
+        //     // prepare board : gameRule
+        //     // 2 : play
+        //     // 3: display result
+
+        // }
+
         public void Play()
         {
             Console.WriteLine("Welcome to Tic Tac Toe!");
