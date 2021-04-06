@@ -10,7 +10,6 @@ namespace Strings.Calculator
         private const string OPTIONAL_DELIMITER = "//";
         private const string NEWLINE = "\n";
         private IDelimiter _delimiter;
-
         private Sequence _sequence;
         
         public int Add(string number) {
@@ -22,14 +21,15 @@ namespace Strings.Calculator
 
             SeparateDelimiterAndNumbers(number);
 
-            GetDelimiter();
+            SetDelimiter();
 
-            var delimiters = _delimiter.GetDelimiters(_sequence.DelimiterPattern);
+            var delimiters = _delimiter.GetDelimiters(_sequence.DelimiterString);
             var numbers = _sequence.NumberString.Split(delimiters, StringSplitOptions.None);
 
             if (numbers.Length > 1) return SumNumbers(numbers);
             else return Int32.Parse(number);
         }
+
         public void CheckInvalidInputs(string number)
         {
             if (number.StartsWith(OPTIONAL_DELIMITER) && !number.Contains(NEWLINE))
@@ -60,15 +60,15 @@ namespace Strings.Calculator
             }   
         }
 
-        public void GetDelimiter()
+        public void SetDelimiter()
         {
-            if (_sequence.DelimiterPattern == null)
+            if (_sequence.DelimiterString == null)
             {
-                _delimiter = new SimpleDelimiter();
+                _delimiter = new SimpleDelimiter("");
             } else {
                 string bracketCheckRegex = @"\[.+\]";
-                var matches = Regex.Matches(_sequence.DelimiterPattern, bracketCheckRegex);
-                _delimiter = (matches.Count == 0 ? new SingleDelimiter() : new BracketDelimiter());
+                var matches = Regex.Matches(_sequence.DelimiterString, bracketCheckRegex);
+                _delimiter = (matches.Count == 0 ? new OptionalDelimiter(@"\/\/(.*?)\n") : new OptionalDelimiter(@"\[(.*?)\]|\/\/(.)\n"));
             }
         }
 
@@ -92,10 +92,7 @@ namespace Strings.Calculator
 
         public void ThrowNegativeNumbersException(List<int> _negativeNumbers)
         {
-            if (_negativeNumbers.Count > 0) 
-            {
-                throw new ArgumentException($"Negatives not allowed: {string.Join(", ", _negativeNumbers.ToArray())}");
-            }
+            if (_negativeNumbers.Count > 0)  throw new ArgumentException($"Negatives not allowed: {string.Join(", ", _negativeNumbers.ToArray())}");
 
         }     
     }

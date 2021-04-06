@@ -4,18 +4,18 @@ namespace Strings.Calculator
 {
     public class Sequence
     {
-        private string _numberPattern;
+        private string _numberString;
 
-        private string _delimiterPattern;
+        private string _delimiterString;
 
-        public string DelimiterPattern => _delimiterPattern;
+        public string DelimiterString => _delimiterString;
 
-        public string NumberString => _numberPattern;
+        public string NumberString => _numberString;
 
         public Sequence(string numbers, string delimiterPattern = null)
         {
-            _numberPattern = numbers;
-            _delimiterPattern = delimiterPattern;
+            _numberString = numbers;
+            _delimiterString = delimiterPattern;
         }
 
     }
