@@ -1,6 +1,5 @@
 ﻿using System.Text.RegularExpressions;
 using System;
-using System.Linq;
 using System.Collections.Generic;
 
 namespace Strings.Calculator
@@ -8,74 +7,69 @@ namespace Strings.Calculator
 
     public class StringsCalculator
     {
+        private const string OPTIONAL_DELIMITER = "//";
+        private const string NEWLINE = "\n";
+        private IDelimiter _delimiter;
+
+        private Sequence _sequence;
+        
         public int Add(string number) {
             if (String.IsNullOrWhiteSpace(number)) {
                 return 0;
             }
 
-            var numbers = GetNumbersArray(number);
+            CheckInvalidInputs(number);
+
+            SeparateDelimiterAndNumbers(number);
+
+            GetDelimiter();
+
+            var delimiters = _delimiter.GetDelimiters(_sequence.DelimiterPattern);
+            var numbers = _sequence.NumberString.Split(delimiters, StringSplitOptions.None);
 
             if (numbers.Length > 1) return SumNumbers(numbers);
-            return Int32.Parse(number);
+            else return Int32.Parse(number);
         }
-
-        public string[] GetNumbersArray(string number)
+        public void CheckInvalidInputs(string number)
         {
-            MatchCollection delimiter;
-            string[] numbers;
-
-            string pattern = @"\/\/(.*?)\n(.+)";
-            
-            MatchCollection matches = Regex.Matches(number, pattern);
-
-            if (matches.Count != 0)
+            if (number.StartsWith(OPTIONAL_DELIMITER) && !number.Contains(NEWLINE))
             {
-                var delimiterValues = matches[0].Groups[1].Value;
-                var sequence = matches[0].Groups[2].Value;
-
-                if (delimiterValues.Length == 1) 
-                {
-                    delimiter = matches;
-
-                } else {
-                    delimiter = GetDelimiter(delimiterValues);
-                }
-                numbers = SplitStringWithDelimiter(delimiter, sequence);
-            } else {
-                numbers = number.Split(new char[] { ',', '\n'});
-            }   
-
-            return numbers;
-        }
-
-        public MatchCollection GetDelimiter(string number)
-        {
-            string invalidDelimiterPattern = @"\[(\d.*?|.*?\d)\]";
-            MatchCollection invalidDelimiter = Regex.Matches(number, invalidDelimiterPattern);
-
+                throw new ArgumentException("Invalid delimiter is used");
+            }
+            string invalidDelimiterRegex = @"\/\/\[(\d.*?|.*?\d)\].+|\/\/\[\/\/.*]\n";
+            MatchCollection invalidDelimiter = Regex.Matches(number, invalidDelimiterRegex);
             if (invalidDelimiter.Count > 0)
             {
                 throw new ArgumentException("Invalid delimiter is used");
             }
-
-            string delimiterGroup = @"\/\/(.*?)\n";
-            MatchCollection delimiterValues = Regex.Matches(number, delimiterGroup);
-
-            string delimiterPattern = @"\[(.*?)\]";
-            MatchCollection delimiterBrackets = Regex.Matches(number, delimiterPattern);
-
-            if (delimiterBrackets.Count > 0) {
-                return delimiterBrackets;  
-            } 
-
-            return delimiterValues;
         }
 
-        public string[] SplitStringWithDelimiter(MatchCollection matches, string number)
+        public void SeparateDelimiterAndNumbers(string number)
         {
-            var multipleDelimiters = matches.Select(m => m.Groups[1].Value).ToArray();
+            var separateDelimeterAndNumbersRegex = @"(\/\/.+\n)(.+)";
+            var matches = Regex.Matches(number, separateDelimeterAndNumbersRegex);
+            if (matches.Count != 0)
+            {
+                var delimiterValues = matches[0].Groups[1].Value;
+                var numberString = matches[0].Groups[2].Value;
 
-            return number.Split(multipleDelimiters, StringSplitOptions.None);
+                _sequence = new Sequence(numberString, delimiterValues);
+                
+            } else {
+                _sequence = new Sequence(number, null);
+            }   
+        }
+
+        public void GetDelimiter()
+        {
+            if (_sequence.DelimiterPattern == null)
+            {
+                _delimiter = new SimpleDelimiter();
+            } else {
+                string bracketCheckRegex = @"\[.+\]";
+                var matches = Regex.Matches(_sequence.DelimiterPattern, bracketCheckRegex);
+                _delimiter = (matches.Count == 0 ? new SingleDelimiter() : new BracketDelimiter());
+            }
         }
 
         public int SumNumbers(string[] numbers)
